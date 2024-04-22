@@ -1,0 +1,14 @@
+{
+  "name": "telegram-bot",
+  "version": "1.0.0",
+  "description": "A Telegram bot that displays user information and supports multiple languages.",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "author": "GAJAR BOTOL",
+  "license": "MIT",
+  "dependencies": {
+    "node-telegram-bot-api": "^0.56.0"
+  }
+}
