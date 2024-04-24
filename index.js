@@ -2,7 +2,7 @@ const { Telegraf } = require('telegraf');
 
 // Initialize the bot with your bot token
 const bot = new Telegraf('7106615757:AAFGnZc6wN-RA9P0vdAxGqtPakYRYdkFgQM');
-
+const keep_alive = require('./keep_alive.js')
 // Initialize user count
 let userCount = 0;
 
@@ -21,5 +21,12 @@ bot.start((ctx) => {
     ctx.reply(replyMessage);
 });
 
+// Handle errors
+bot.catch((err, ctx) => {
+    console.error(`Error for ${ctx.updateType}`, err)
+})
+
 // Start the bot
-bot.launch().then(() => console.log('Bot started'));
+bot.launch()
+    .then(() => console.log('Bot started'))
+    .catch(err => console.error(err));
