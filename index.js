@@ -2,8 +2,7 @@ const { Telegraf } = require('telegraf');
 
 // Initialize the bot with your bot token
 const bot = new Telegraf('7106615757:AAFGnZc6wN-RA9P0vdAxGqtPakYRYdkFgQM');
-const keep_alive = require('./keep_alive.js');
-
+const keep_alive = require('./keep_alive.js')
 // Initialize user count
 let userCount = 0;
 
@@ -24,14 +23,10 @@ bot.start((ctx) => {
 
 // Handle errors
 bot.catch((err, ctx) => {
-    console.error(`Error for ${ctx.updateType}`, err);
-});
+    console.error(`Error for ${ctx.updateType}`, err)
+})
 
 // Start the bot
-bot.launch({
-    webhook: {
-        domain: 'https://user-info-bot.onrender.com',
-        port: process.env.PORT || 3000 // Use the port provided by Render or default to 3000
-    }
-}).then(() => console.log('Bot started'))
-  .catch(err => console.error(err));
+bot.launch()
+    .then(() => console.log('Bot started'))
+    .catch(err => console.error(err));
