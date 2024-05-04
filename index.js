@@ -71,6 +71,8 @@ bot.on('callback_query', (query) => {
   bot.sendMessage(query.message.chat.id, response);
 });
 
-// Specify the port for the application
-const PORT = process.env.PORT || 3000; // Use the PORT environment variable or default to 3000
-bot.openWebHook(PORT, { webhook: { port: PORT } });
+// Create HTTP server to prevent port scan timeout error
+const PORT = process.env.PORT || 3000; // Use the provided port or default to 3000
+http.createServer().listen(PORT);
+
+console.log(`Server is running on port ${PORT}`);
