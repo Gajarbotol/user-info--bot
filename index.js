@@ -1,32 +1,72 @@
-const { Telegraf } = require('telegraf');
+const TelegramBot = require('node-telegram-bot-api');
 
-// Initialize the bot with your bot token
-const bot = new Telegraf('7106615757:AAFGnZc6wN-RA9P0vdAxGqtPakYRYdkFgQM');
-const keep_alive = require('./keep_alive.js')
-// Initialize user count
+// Replace 'YOUR_TELEGRAM_BOT_TOKEN' with your actual bot token obtained from BotFather on Telegram.
+const bot = new TelegramBot('7106615757:AAFGnZc6wN-RA9P0vdAxGqtPakYRYdkFgQM', { polling: true });
+
+// User counter and threshold
 let userCount = 0;
+const threshold = 100; // Change this to your desired threshold
 
-// Define the start command handler
-bot.start((ctx) => {
-    // Increment user count
-    userCount++;
+// Your chat ID where you want to receive the congratulatory message
+const yourChatId = '5197344486'; // Replace with your actual chat ID
 
-    // Get user information
-    const { id, first_name, last_name, language_code } = ctx.from;
+// Language dictionary
+const language = {
+  en: {
+    greeting: "Hello! I'm your friendly bot. Please choose your preferred language:",
+    options: {
+      english: "English 🇬🇧",
+      bengali: "বাংলা 🇧🇩"
+    },
+    selected: "Language selected: English 🇬🇧"
+  },
+  bn: {
+    greeting: "হ্যালো! আমি আপনার ফ্রেন্ডলি বট। আপনার পছন্দের ভাষা নির্ধারণ করুন:",
+    options: {
+      english: "English 🇬🇧",
+      bengali: "বাংলা 🇧🇩"
+    },
+    selected: "নির্বাচিত ভাষা: বাংলা 🇧🇩"
+  }
+};
 
-    // Prepare the reply message
-    const replyMessage = `Chat ID: ${id}\nFirst name: ${first_name}\nLast name: ${last_name}\nLanguage: ${language_code}\nStarted count: ${userCount}`;
+// User language preference storage
+const userLanguage = {};
 
-    // Send the reply message
-    ctx.reply(replyMessage);
+// Handle /start command
+bot.onText(/\/start/, (msg) => {
+  const chatId = msg.chat.id;
+  const userId = msg.from.id;
+
+  if (!userLanguage[userId]) {
+    bot.sendMessage(chatId, language.en.greeting, {
+      reply_markup: {
+        inline_keyboard: [
+          [
+            { text: language.en.options.english, callback_data: 'en' },
+            { text: language.en.options.bengali, callback_data: 'bn' }
+          ]
+        ]
+      }
+    });
+  } else {
+    const lang = userLanguage[userId];
+    const response = `${language[lang].greeting}\n\n${language[lang].selected}`;
+    bot.sendMessage(chatId, response);
+  }
+
+  // Increment user count and check threshold
+  userCount++;
+  if (userCount === threshold) {
+    bot.sendMessage(yourChatId, `Congratulations! Your bot has reached ${threshold} users.`);
+  }
 });
 
-// Handle errors
-bot.catch((err, ctx) => {
-    console.error(`Error for ${ctx.updateType}`, err)
-})
-
-// Start the bot
-bot.launch()
-    .then(() => console.log('Bot started'))
-    .catch(err => console.error(err));
+// Handle language selection callback
+bot.on('callback_query', (query) => {
+  const userId = query.from.id;
+  const lang = query.data;
+  userLanguage[userId] = lang;
+  const response = `${language[lang].greeting}\n\n${language[lang].selected}`;
+  bot.sendMessage(query.message.chat.id, response);
+});
